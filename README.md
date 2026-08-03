@@ -122,8 +122,6 @@ The notebook predicts:
 
 ---
 
-## 📷 Sample Output
-
 The notebook generates:
 
 - Encoded Dataset
@@ -148,18 +146,6 @@ This project demonstrates:
 - Comparison of Classification Algorithms
 
 ---
-
-## 📌 Future Improvements
-
-- Perform hyperparameter tuning
-- Use cross-validation
-- Visualize the confusion matrix
-- Add ROC and Precision-Recall curves
-- Experiment with larger datasets
-
----
-
-
 
 **Albin Thomas**
 
