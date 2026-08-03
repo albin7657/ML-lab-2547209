@@ -77,11 +77,6 @@ Install the required packages:
 jupyter notebook Lab8.ipynb
 ```
 
-### Using Python
-
-```bash
-python Lab8.py
-```
 
 ---
 
