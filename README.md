@@ -1,4 +1,4 @@
-# Fire Event Priority Prediction for India Using Ensemble Machine Learning
+# Fire Event Prediction for India Using Ensemble Machine Learning
 
 ## ML for Social Good – Mission Earth
 
