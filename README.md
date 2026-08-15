@@ -1,341 +1,296 @@
-# Fire Event Priority Prediction for India Using Ensemble Machine Learning
+# Indian Wildfire Analysis and Prediction
 
-## ML for Social Good – Mission Earth
+## Project Overview
 
----
+This project focuses on the analysis and machine learning-based prediction of wildfire activity in India using an **8-year Indian wildfire dataset derived from NASA satellite observations**.
 
-## Problem Statement
+The project performs data exploration, preprocessing, machine learning modeling, and model interpretation to identify patterns and important factors associated with wildfire activity.
 
-India experiences numerous satellite-detected fire and thermal events. Monitoring all detected events with the same level of urgency can make prioritisation difficult.
-
-This project develops an ensemble machine learning system to classify satellite-detected fire events into:
-
-- **Routine Priority**
-- **High Priority**
-
-The objective is to support environmental monitoring and response personnel by helping prioritise events for further investigation.
-
----
-
-## Why Machine Learning?
-
-Machine learning is suitable for this problem because the dataset contains a large number of historical satellite observations with multiple numerical, categorical, temporal, and geographical features. The relationship between these features and the constructed priority class can be complex and non-linear.
-
-Ensemble machine learning models can learn patterns from historical observations and provide consistent predictions for new satellite-detected events. The system is designed to support human prioritisation and does not replace expert judgement or emergency-response decisions.
-
----
-
-## Intended Beneficiaries
-
-The proposed system can support:
-
-- Environmental monitoring agencies
-- Forest and wildlife authorities
-- Disaster-response personnel
-- Researchers analysing fire activity
-
-The model is intended as a **decision-support system** and not as a fully autonomous emergency-response system.
-
----
-
-## Measurable Impact
-
-The proposed system aims to support faster prioritisation of large numbers of satellite-detected fire events.
-
-Its machine learning performance is evaluated using:
-
-- ROC-AUC
-- F1-score
-- Precision
-- Recall
-- Confusion Matrix
-
-A particularly important measure is the model's ability to correctly identify events labelled as High Priority.
-
-In a real operational setting, the potential impact could be measured by the proportion of High-Priority events correctly identified and the reduction in time required to prioritise large numbers of events for human review.
+The main machine learning model implemented in this project is a **Random Forest-based pipeline**, with **SHAP (SHapley Additive exPlanations)** used to interpret feature importance.
 
 ---
 
 ## Dataset
 
-The project uses satellite fire-event observations for India obtained from **NASA FIRMS / MODIS data**.
+### Indian Wildfire NASA Dataset – 8 Years
 
-Each row represents **one satellite-detected thermal event**.
+The dataset used in this project was obtained from Kaggle:
 
-The dataset contains features including:
+**Kaggle Dataset:**
+https://www.kaggle.com/datasets/sherkhan15/indian-wildfire-nasa-dataset-8-years
 
-- Latitude
-- Longitude
-- Brightness
-- Scan
-- Track
-- Acquisition date
-- Acquisition time
-- Satellite
-- Detection confidence
-- Brightness temperature
-- Day/Night information
-- Fire Radiative Power (FRP)
+**Dataset file used in this project:**
 
-### Dataset Citation
+```text
+fire_archive_M6_107977.csv
+```
 
-NASA FIRMS – Fire Information for Resource Management System. Satellite-derived active fire and thermal anomaly observations.
+The dataset contains satellite-based wildfire observations covering India over multiple years.
 
-**Dataset source:** PASTE THE EXACT NASA FIRMS DOWNLOAD OR SOURCE LINK YOU USED HERE.
+The data can be used to investigate:
 
-**Unit of analysis:** One row represents one satellite-detected thermal event.
+* Wildfire occurrence patterns
+* Temporal wildfire trends
+* Geographic distribution
+* Environmental factors associated with fire activity
+* Machine learning-based wildfire prediction
 
 ---
 
-## Dataset Size
+## Project Objectives
 
-- **Records:** 644,255
-- **Original Features:** 15
+The main objectives of this project are:
 
----
-
-## Target Variable
-
-The target variable is:
-
-`high_priority`
-
-- `0` = Routine Priority
-- `1` = High Priority
-
-The High-Priority label was created using a Fire Radiative Power (FRP) threshold.
-
-FRP was used to construct the target but was excluded from the model input features to prevent target leakage.
-
-The final target distribution was approximately:
-
-- **Routine Priority:** 74.99%
-- **High Priority:** 25.01%
+1. Explore the Indian wildfire dataset.
+2. Perform data cleaning and preprocessing.
+3. Analyze wildfire patterns and distributions.
+4. Prepare relevant features for machine learning.
+5. Train a Random Forest machine learning model.
+6. Evaluate the predictive performance of the model.
+7. Identify important wildfire-related features.
+8. Explain model predictions using SHAP.
 
 ---
 
-## Data Preprocessing
+## Methodology
 
-The following data quality checks and preprocessing steps were performed.
+The overall workflow followed in this project is:
 
-### Missing Values
-
-All original variables were audited for missing and NaN values.
-
-No missing values were found in the dataset. Therefore, no imputation or row deletion was required.
-
-Any NaN values visible in the combined statistical summary represented statistics that were not applicable to particular data types and were not missing observations in the original dataset.
-
-### Duplicate Records
-
-The dataset was checked for exact duplicate rows.
-
-- **Duplicate rows found:** 0
-
-Therefore, no records were removed due to duplication.
-
-### Invalid Values
-
-Checks were performed for:
-
-- Invalid latitude values
-- Invalid longitude values
-- Negative brightness
-- Negative scan
-- Negative track
-- Negative confidence
-- Negative Brightness Temperature
-- Negative FRP
-
-No invalid values were found in the checks performed.
-
-### Outliers
-
-FRP showed a highly right-skewed distribution.
-
-Extreme FRP values were not blindly removed because unusually large FRP observations may represent meaningful high-intensity fire events rather than data errors.
-
-A logarithmic transformation was used for exploratory visualisation of the FRP distribution.
-
-### Feature Engineering
-
-Temporal features were engineered from acquisition date and time.
-
-Categorical features were encoded using one-hot encoding.
-
-Numerical features were scaled within the machine learning preprocessing pipeline using `RobustScaler`.
+```text
+Indian Wildfire Dataset
+        ↓
+Data Loading
+        ↓
+Data Cleaning
+        ↓
+Exploratory Data Analysis
+        ↓
+Feature Engineering
+        ↓
+Data Preprocessing
+        ↓
+Random Forest Model
+        ↓
+Model Evaluation
+        ↓
+SHAP Feature Importance
+        ↓
+Interpretation
+```
 
 ---
 
-## Leakage Prevention
+## Machine Learning Model
 
-A leakage-safe machine learning workflow was used.
+### Random Forest
 
-The data was split into training, validation, and test sets.
+A **Random Forest** model is used as the primary machine learning algorithm.
 
-Preprocessing transformations were fitted using the training data and then applied consistently to validation and test data.
+Random Forest is an ensemble learning method that combines multiple decision trees to improve predictive performance and reduce the risk of overfitting compared with a single decision tree.
 
-The final test set remained untouched during model selection and hyperparameter tuning.
+The trained preprocessing and Random Forest workflow has been saved as a reusable pipeline artifact:
 
-Since FRP was used to derive the target variable, it was excluded from the predictor variables. Including FRP as an input feature would allow the model to directly learn the rule used to construct the target, resulting in target leakage and artificially inflated performance.
+```text
+fire_priority_random_forest_pipeline.*
+```
 
----
-
-## Class Imbalance
-
-The final target distribution contained approximately:
-
-- 74.99% Routine-Priority events
-- 25.01% High-Priority events
-
-The imbalance was considered during model development using stratified splitting and class-aware modelling where applicable.
+This allows the preprocessing and trained model to be reused without rebuilding the complete training pipeline from scratch.
 
 ---
 
-## Models
+## Model Interpretability
 
-The following models were implemented and compared.
+Machine learning predictions should not only be accurate but also understandable.
 
-### Baseline Model
+For this reason, **SHAP (SHapley Additive exPlanations)** was used to analyze the contribution of individual features to the model's predictions.
 
-- Decision Tree Classifier
+The generated visualization is:
 
-### Bagging Ensemble
+```text
+global_shap_feature_importance.png
+```
 
-- Random Forest Classifier
-
-### Boosting Ensemble
-
-- AdaBoost Classifier
-
-### Heterogeneous Ensemble
-
-- Stacking Ensemble
-
-Hyperparameter tuning and cross-validation were used during model development.
-
-The stacking approach used heterogeneous base models with a separate meta-model and cross-validation to reduce the risk of information leakage during meta-learning.
+This visualization provides a global view of which features have the greatest influence on the Random Forest model.
 
 ---
 
-## Model Evaluation
+## Project Files
 
-Models were evaluated using:
+```text
+ML-lab-2547209/
+│
+├── fire_archive_M6_107977.csv
+│   └── Indian wildfire dataset used for analysis and model training
+│
+├── fire_priority_random_forest_pipeline.*
+│   └── Saved preprocessing + Random Forest machine learning pipeline
+│
+├── global_shap_feature_importance.png
+│   └── SHAP-based global feature importance visualization
+│
+└── india_fire.ipynb
+    └── Main Jupyter Notebook containing data analysis,
+        preprocessing, model training, evaluation,
+        and interpretability steps
+```
 
-- ROC-AUC
-- F1-score
-- Precision
-- Recall
-- Confusion Matrix
-- ROC Curve
-
-All final model comparisons were performed using the same untouched test set.
-
----
-
-## Best Model
-
-The **Tuned Random Forest** was selected as the final model based on validation performance.
-
-### Final Test Performance
-
-| Model | ROC-AUC | F1 | Precision | Recall |
-|---|---:|---:|---:|---:|
-| Decision Tree Baseline | 0.932007 | 0.900422 | 0.906239 | 0.894679 |
-| Random Forest (Tuned) | 0.994797 | 0.931307 | 0.922627 | 0.940151 |
-
-The Tuned Random Forest outperformed the Decision Tree baseline on the final untouched test set.
-
-Its ROC-AUC increased from **0.932007** to **0.994797**, while its F1-score increased from **0.900422** to **0.931307**.
-
-The Random Forest also achieved higher recall, improving from **0.894679** to **0.940151**. This means it correctly identified a larger proportion of events labelled as High Priority.
-
-The Tuned Random Forest was therefore selected as the final model.
-
-However, this prediction represents an operational priority classification based on the constructed target and historical satellite observations. It should not be interpreted as an autonomous determination of real-world emergency severity.
+> The exact extension of the saved Random Forest pipeline should be retained as generated by the notebook.
 
 ---
 
-## Explainability
+## Technologies Used
 
-SHAP was used to explain the behaviour of the final Random Forest model at both:
-
-- **Global level:** Overall feature influence across observations
-- **Local level:** Feature contributions to an individual prediction
-
-### Global Explanation
-
-The most influential features included:
-
-1. Brightness
-2. Detection Confidence
-3. Scan
-4. Track
-
-Brightness had the highest overall influence on model predictions. This indicates that the strength of the detected thermal signal was highly important when the model differentiated between Routine-Priority and High-Priority events.
-
-Detection Confidence was also a major contributor. This feature provides information related to the reliability of the detected satellite thermal anomaly and therefore influenced the model's prioritisation decision.
-
-Scan and Track were also influential and describe characteristics related to the satellite observation.
-
-SHAP values explain how the trained model uses the input features. They do not prove that an individual feature physically causes a fire event to become more severe or dangerous.
-
-### Local Explanation
-
-A realistic synthetic fire-event record was passed through the final trained pipeline for a live demonstration.
-
-The model predicted:
-
-- **Prediction:** HIGH PRIORITY
-- **Probability of High Priority:** 99.40%
-
-For this prediction, Brightness made the strongest positive contribution toward the High-Priority classification, followed by Detection Confidence.
-
-Some features made comparatively small negative contributions, but these were not sufficient to offset the strong positive evidence.
-
-The local explanation represents the reasoning of the trained machine learning model for this specific input. It should not be interpreted as proof of physical causation.
+* Python
+* Jupyter Notebook
+* Pandas
+* NumPy
+* Matplotlib
+* Seaborn
+* Scikit-learn
+* SHAP
 
 ---
 
-## Ethics and Responsible Use
+## Key Components
 
-### Bias and Fairness
+### 1. Data Analysis
 
-Satellite detection quality may vary across geographic regions, environmental conditions, satellite overpass times, and other factors. Model performance should therefore be evaluated across different regions and conditions before operational deployment.
+The dataset is loaded and examined to understand:
 
-### Privacy
+* Dataset dimensions
+* Data types
+* Missing values
+* Duplicate values
+* Feature distributions
+* Wildfire-related patterns
 
-The dataset does not contain directly identifiable personal information.
+### 2. Data Preprocessing
 
-### Uncertainty
+The preprocessing stage prepares the raw wildfire data for machine learning.
 
-Predicted probabilities represent model estimates and should not be interpreted as certainty.
+Typical operations include:
 
-### False Positives
+* Handling missing values
+* Feature selection
+* Data transformation
+* Encoding where required
+* Train/test separation
+* Preparation of model input features
 
-A false positive may result in unnecessary allocation of monitoring or response resources.
+### 3. Random Forest Training
 
-### False Negatives
+The processed dataset is used to train the Random Forest model.
 
-A false negative may delay attention to an event that may require further investigation.
+The model learns relationships between the available wildfire-related features and the selected prediction target.
 
-### Human Oversight
+### 4. Model Evaluation
 
-The system should be used as a decision-support tool. Predictions should be verified using additional information, such as local conditions, weather, ground observations, and other reliable sources.
+The trained model is evaluated using appropriate performance metrics.
 
-### Deployment Limitations
+The evaluation results are generated in:
 
-The model was trained using historical satellite observations from India. Performance may differ for other locations, sensors, environmental conditions, or future fire patterns.
+```text
+india_fire.ipynb
+```
 
-The High-Priority label is an operational proxy based on an FRP threshold rather than an official emergency classification.
+### 5. SHAP Analysis
 
-The system should not be used as a fully autonomous emergency-response decision-maker.
+SHAP is applied to the trained model to understand how individual features contribute to predictions.
+
+The resulting global feature importance visualization is stored as:
+
+```text
+global_shap_feature_importance.png
+```
 
 ---
 
-## Installation
+## Reproducibility
 
-Install the required Python libraries:
+To reproduce the project:
+
+### 1. Clone or download the project
 
 ```bash
-pip install pandas numpy matplotlib scikit-learn shap joblib
+git clone <repository-url>
+cd ML-lab-2547209
+```
+
+### 2. Install required packages
+
+```bash
+pip install pandas numpy matplotlib seaborn scikit-learn shap jupyter
+```
+
+### 3. Open the notebook
+
+```bash
+jupyter notebook india_fire.ipynb
+```
+
+### 4. Run the notebook
+
+Execute the cells sequentially to reproduce the data preprocessing, model training, evaluation, and SHAP analysis.
+
+---
+
+## Results
+
+The project produces:
+
+* Processed wildfire data
+* A trained Random Forest model pipeline
+* Model evaluation results
+* Global feature importance analysis
+* SHAP-based model interpretation
+
+The main visual interpretation output is:
+
+```text
+global_shap_feature_importance.png
+```
+
+---
+
+## Future Improvements
+
+The project can be extended by:
+
+* Comparing Random Forest with XGBoost, LightGBM, and CatBoost
+* Performing systematic hyperparameter tuning
+* Using temporal validation instead of only random splitting
+* Incorporating weather and climate variables
+* Adding vegetation and land-cover information
+* Developing wildfire risk maps
+* Implementing real-time wildfire monitoring
+* Deploying the model through a web application or dashboard
+
+---
+
+## Dataset Attribution
+
+The wildfire dataset used in this project was obtained from Kaggle:
+
+**Indian Wildfire NASA Dataset – 8 Years**
+
+https://www.kaggle.com/datasets/sherkhan15/indian-wildfire-nasa-dataset-8-years
+
+All dataset ownership and licensing remain with the original dataset provider and its applicable source data providers.
+
+---
+
+## Project Information
+
+**Project:** Indian Wildfire Analysis and Prediction
+**Project/Lab ID:** 2547209
+**Primary Model:** Random Forest
+**Interpretability Method:** SHAP
+**Notebook:** `india_fire.ipynb`
+
+---
+
+## Status
+
+**Completed / Under Evaluation**
+
+The current project contains the dataset, trained machine learning pipeline, SHAP feature-importance visualization, and the complete analysis notebook.
